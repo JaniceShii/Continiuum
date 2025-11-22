@@ -1,8 +1,6 @@
 import "~/styles/globals.css";
 
 import { ClerkProvider } from "@clerk/nextjs";
-import { type Metadata } from "next";
-import { Geist } from "next/font/google";
 import { Navigation } from "./_components/navigation";
 
 export const metadata = {
@@ -17,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${geist.variable}`}>
+      <html lang="en">
         <body>
           <div className="flex min-h-screen flex-col bg-[#0d1117]">
             <div className="gradient-bg fixed inset-0 -z-10 opacity-50" />
