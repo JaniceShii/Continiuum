@@ -4,9 +4,9 @@ FROM python:3.12-slim
 # Prevent Python from buffering stdout and stderr
 ENV PYTHONUNBUFFERED=1
 
-# Install docker CLI so the container can inspect other containers
+# Install docker CLI so the container can inspect other containers, and git for cloning repos
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates gnupg && \
+    apt-get install -y --no-install-recommends curl ca-certificates gnupg git && \
     install -m 0755 -d /etc/apt/keyrings && \
     curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc && \
     chmod a+r /etc/apt/keyrings/docker.asc && \

@@ -27,6 +27,38 @@ def get_container_logs(name: str, lines: int = 300):
         return f"Error fetching logs: {str(e)}"
 
 
+def get_container_env(name: str, var_name: str):
+    """Get a specific environment variable from a container"""
+    docker_cmd = shutil.which("docker")
+    if not docker_cmd:
+        for path in ["/usr/bin/docker", "/usr/local/bin/docker", "/bin/docker"]:
+            if os.path.exists(path):
+                docker_cmd = path
+                break
+    
+    if not docker_cmd:
+        return None
+    
+    try:
+        result = subprocess.run(
+            [docker_cmd, "inspect", "-f", f"{{{{range .Config.Env}}}}{{{{println .}}}}{{{{end}}}}", name],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode != 0:
+            return None
+        
+        # Parse environment variables
+        for line in result.stdout.strip().split('\n'):
+            if '=' in line:
+                key, value = line.split('=', 1)
+                if key == var_name:
+                    return value
+        return None
+    except Exception as e:
+        print(f"Error getting env var {var_name} from {name}: {str(e)}")
+        return None
+
+
 def get_container_state(name: str):
     docker_cmd = shutil.which("docker")
     if not docker_cmd:

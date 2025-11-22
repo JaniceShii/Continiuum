@@ -3,6 +3,10 @@ services:
     build: .
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - GENAI_API_KEY=${GENAI_API_KEY}
+      - AGENT_BACKEND_URL=${AGENT_BACKEND_URL:-http://localhost:3000}
+      - AGENT_ID=${AGENT_ID:-1}
     networks:
       - internal
     restart: always
@@ -14,9 +18,13 @@ services:
       - internal
     restart: always
 
-  test-container:
-    image: alpine
-    command: sh -c "echo 'Starting test container...'; echo 'Connecting to database...'; sleep 3; echo 'ERROR Failed to connect to database at db.example.com:5432'; echo 'ERROR Connection timeout after 30 seconds'; echo 'ERROR Unable to establish connection'; echo 'Stack trace:'; echo '  at connect() line 42'; echo '  at main() line 10'; sleep 7; echo 'FATAL Application crashed'; exit 1"
+  demo-app:
+    build: ../../HW12-demo
+    container_name: agent-demo-app-1
+    restart: "no"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GIT_REPO_URL=https://github.com/sokosam/HW12-demo
     networks:
       - internal
 
