@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { mockServers, mockIncidents } from "~/lib/mock-data";
+import { TrendGraph } from "~/app/_components/trend-graph";
+import { IncidentTimeline } from "~/app/_components/incident-timeline";
 
 export default function DashboardPage() {
-  // INTEGRATION: Replace with tRPC call
-  // const { data: servers } = api.servers.getAll.useQuery();
-  // const { data: incidents } = api.incidents.getAll.useQuery();
   const servers = mockServers;
   const incidents = mockIncidents;
 
@@ -14,7 +13,7 @@ export default function DashboardPage() {
   const crashedServers = servers.filter((s) => s.status === "crashed").length;
   const unresolvedIncidents = incidents.filter((i) => !i.resolved).length;
   const errorsToday = incidents.filter(
-    (i) => i.timestamp.getTime() > Date.now() - 86400000,
+    (i) => i.timestamp.getTime() > Date.now() - 86400000
   ).length;
 
   const recentIncidents = incidents
@@ -22,23 +21,27 @@ export default function DashboardPage() {
     .slice(0, 5);
 
   return (
-    <div className="mx-52 space-y-6">
+    <div className="mx-52 space-y-10">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-[#f0f6fc]">Dashboard</h1>
-        {/* INTEGRATION: Replace with tRPC mutation */}
         <button
-          onClick={() => {
-            // api.stressTest.run.mutate();
-            alert("Stress test triggered - INTEGRATION: Connect to tRPC");
-          }}
+          onClick={() => alert("Stress test triggered - integrate tRPC")}
           className="rounded-lg bg-gradient-to-r from-[#f85149] to-[#da3633] px-4 py-2 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-500/20"
         >
           Run Stress Test
         </button>
       </div>
 
+      {/* NEW: Graph Section */}
+      <TrendGraph incidents={incidents} />
+
+      {/* NEW: Timeline Section */}
+      <IncidentTimeline incidents={incidents} />
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Active Servers */}
         <div className="card p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -59,16 +62,13 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-[#8b949e]">
-                Active Servers
-              </p>
-              <p className="text-2xl font-semibold text-[#f0f6fc]">
-                {activeServers}
-              </p>
+              <p className="text-sm font-medium text-[#8b949e]">Active Servers</p>
+              <p className="text-2xl font-semibold text-[#f0f6fc]">{activeServers}</p>
             </div>
           </div>
         </div>
 
+        {/* Crashed Servers */}
         <div className="card p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -89,16 +89,13 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-[#8b949e]">
-                Crashed Servers
-              </p>
-              <p className="text-2xl font-semibold text-[#f0f6fc]">
-                {crashedServers}
-              </p>
+              <p className="text-sm font-medium text-[#8b949e]">Crashed Servers</p>
+              <p className="text-2xl font-semibold text-[#f0f6fc]">{crashedServers}</p>
             </div>
           </div>
         </div>
 
+        {/* Unresolved Incidents */}
         <div className="card p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -119,9 +116,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-[#8b949e]">
-                Unresolved Incidents
-              </p>
+              <p className="text-sm font-medium text-[#8b949e]">Unresolved Incidents</p>
               <p className="text-2xl font-semibold text-[#f0f6fc]">
                 {unresolvedIncidents}
               </p>
@@ -129,6 +124,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Errors Today */}
         <div className="card p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -150,9 +146,7 @@ export default function DashboardPage() {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-[#8b949e]">Errors Today</p>
-              <p className="text-2xl font-semibold text-[#f0f6fc]">
-                {errorsToday}
-              </p>
+              <p className="text-2xl font-semibold text-[#f0f6fc]">{errorsToday}</p>
             </div>
           </div>
         </div>
@@ -183,13 +177,12 @@ export default function DashboardPage() {
                       <p className="text-sm font-medium text-[#f0f6fc]">
                         {incident.serverName}
                       </p>
-                      {!incident.resolved && (
-                        <span className="badge-error inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium">
+                      {!incident.resolved ? (
+                        <span className="badge-error px-2 py-0.5 text-xs">
                           Active
                         </span>
-                      )}
-                      {incident.resolved && (
-                        <span className="badge-success inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium">
+                      ) : (
+                        <span className="badge-success px-2 py-0.5 text-xs">
                           Resolved
                         </span>
                       )}
@@ -250,8 +243,8 @@ export default function DashboardPage() {
                         server.status === "running"
                           ? "badge-success"
                           : server.status === "crashed"
-                            ? "badge-error"
-                            : "border border-[#30363d] bg-[#30363d] text-[#c9d1d9]"
+                          ? "badge-error"
+                          : "border border-[#30363d] bg-[#30363d] text-[#c9d1d9]"
                       }`}
                     >
                       {server.status}
@@ -262,13 +255,11 @@ export default function DashboardPage() {
                     <span>Memory: {server.memory.toFixed(1)}%</span>
                   </div>
                 </div>
-                {/* INTEGRATION: Replace with tRPC mutation */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    // api.servers.reset.mutate({ serverId: server.id });
                     alert(
-                      `Reset ${server.name} - INTEGRATION: Connect to tRPC`,
+                      `Reset ${server.name} - integrate tRPC`
                     );
                   }}
                   className="rounded-lg bg-gradient-to-r from-[#58a6ff] to-[#bc8cff] px-3 py-1.5 text-xs font-medium text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20"
