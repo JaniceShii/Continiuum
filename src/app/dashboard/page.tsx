@@ -5,6 +5,9 @@ import { useState } from "react";
 import { useEffect } from "react";
 import type { Server, Incident } from "~/lib/mock-data";
 import { PageTransition } from "../_components/page-transition";
+import { TrendGraph } from "~/app/_components/trend-graph";
+import { IncidentTimeline } from "~/app/_components/incident-timeline";
+import { mockServers, mockIncidents } from "~/lib/mock-data";
 
 export default function DashboardPage() {
   const [servers, setServers] = useState<Server[]>([]);
@@ -41,7 +44,8 @@ export default function DashboardPage() {
           resolved: incident.resolved ?? false,
         }));
 
-        setIncidents(incidentsData);
+        setIncidents(mockIncidents);
+        console.log("Fetched incidents:", mockIncidents);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err instanceof Error ? err.message : "Failed to load data");
@@ -104,6 +108,10 @@ export default function DashboardPage() {
             Run Stress Test
           </button>
         </div>
+        <TrendGraph incidents={incidents} />
+
+        {/* NEW: Timeline Section */}
+        <IncidentTimeline incidents={incidents} />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
