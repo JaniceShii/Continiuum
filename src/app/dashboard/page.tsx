@@ -74,16 +74,17 @@ export default function DashboardPage() {
   // Listen for real-time updates
   const { isConnected } = useDataUpdates(handleUpdate);
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      // Fetch servers
-      const serversRes = await fetch("/api/servers");
-      if (!serversRes.ok) throw new Error("Failed to fetch servers");
-      const serversData = await serversRes.json();
-      setServers(serversData);
+        // Fetch servers
+        const serversRes = await fetch("/api/servers");
+        if (!serversRes.ok) throw new Error("Failed to fetch servers");
+        const serversData = await serversRes.json();
+        setServers(serversData);
 
         // Fetch errors/incidents
         try {
@@ -97,36 +98,32 @@ export default function DashboardPage() {
           }
           const errorsData = await errorsRes.json();
 
-        // Transform errors to incidents format (matching database schema)
-        const incidentsData: Incident[] = errorsData.map((error: any) => ({
-          id: error.id?.toString() ?? "unknown",
-          serverId: error.containerId?.toString() ?? "unknown",
-          serverName: error.serviceName ?? "Unknown server",
-          timestamp: new Date(error.occurredAt),
-          logs: error.errorMessage ?? "",
-          aiSummary: error.explaination ?? "",
-          aiFix: error.suggestedFix ?? "",
-          resolved: error.resolved ?? false,
-        }));
+          // Transform errors to incidents format (matching database schema)
+          const incidentsData: Incident[] = errorsData.map((error: any) => ({
+            id: error.id?.toString() ?? "unknown",
+            serverId: error.containerId?.toString() ?? "unknown",
+            serverName: error.serviceName ?? "Unknown server",
+            timestamp: new Date(error.occurredAt),
+            logs: error.errorMessage ?? "",
+            aiSummary: error.explaination ?? "",
+            aiFix: error.suggestedFix ?? "",
+            resolved: error.resolved ?? false,
+          }));
 
-        setIncidents(incidentsData);
-      } catch (errorErr) {
-        console.error("Error fetching incidents:", errorErr);
-        // Set empty array instead of breaking the whole page
-        setIncidents([]);
+          setIncidents(incidentsData);
+        } catch (errorErr) {
+          console.error("Error fetching incidents:", errorErr);
+          // Set empty array instead of breaking the whole page
+          setIncidents([]);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err instanceof Error ? err.message : "Failed to load data");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load data");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    };
 
-  // Handle real-time updates
-  const handleUpdate = useCallback(() => {
-    console.log("🔔 Real-time update triggered!");
-    setLastUpdate(new Date());
     fetchData();
   }, [fetchData]);
 
