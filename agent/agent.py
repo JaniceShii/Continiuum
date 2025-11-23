@@ -33,16 +33,17 @@ def post_status( service_name :str, error_logs: str, explanation: str, suggestio
     }
     
     payload = {
+        "agentId": agent_id,
         "containerId": agent_id,
         "serviceName": service_name,
         "errorMessage": error_logs,
-        "explaination": explanation,
+        "explanation": explanation,
         "suggestedFix": suggestion,
-        "occurredAt": time.isoformat()
+        "occurredAt": time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
     }
     
     print(f"Posting status to backend: {payload}")
-    error_route = f"{backend_route}/api/errors"
+    error_route = f"{backend_route}/api/agent/data-ingest"
 
     try:
         response = requests.post(error_route, json=payload, headers=headers, timeout=10)
@@ -228,7 +229,7 @@ def get_gemini_response(prompt: str) -> str:
 
 
 def heartbeat():
-    heartbeat_route = f"{backend_route}/api/heartbeat"
+    heartbeat_route = f"{backend_route}/api/agent/heartbeat"
     headers = {
         "Content-Type": "application/json",
         # "Authorization": f"Bearer"
