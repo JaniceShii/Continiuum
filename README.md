@@ -1,7 +1,5 @@
 # HackWestern 12
 
-Description
-
 Backup link: https://hw-12-azure.vercel.app
 ## PLEASE READ THIS to RUN THE HW12 project
 
